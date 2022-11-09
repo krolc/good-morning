@@ -1,0 +1,20 @@
+pipeline:
+
+  deploy-staging:
+    image: meltwaterfoundation/drone-awscli:latest
+    commands:
+      - export AWS_ACCESS_KEY_ID=$STAGING_AWS_ACCESS_KEY_ID
+      - export AWS_SECRET_ACCESS_KEY=$STAGING_AWS_SECRET_ACCESS_KEY
+      - export S3_BUCKET=good-morning-stogie
+
+      - export STACK_NAME=good-morning-staging
+      - export SECRETS_LAST_UPDATED=$(aws secretsmanager describe-secret --region eu-west-1 --secret-id good-morning --query LastChangedDate)
+
+      # create/deploy tasks, attached to above application
+      - sam package --template-file template.yml --s3-bucket $S3_BUCKET --output-template-file packaged.yaml
+      - sam deploy --template-file packaged.yaml --region=eu-west-1 --stack-name $STACK_NAME --capabilities CAPABILITY_IAM --parameter-overrides BucketName=$S3_BUCKET SecretsLastUpdated=$SECRETS_LAST_UPDATED --tags MWBilling_CoE=PRSolutions MWBilling_Department=422 MWBilling_Team=stogie
+       secrets: [ staging_aws_access_key_id, staging_aws_secret_access_key ]
+    when:
+      event: [ push ]
+      branch: [ whenYouHaveABranch ]
+

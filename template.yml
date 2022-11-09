@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: EventBridge Lambda and slack giphy
+Parameters:
+  BucketName:
+    Type: String
+  SecretsLastUpdated:
+    Type: String
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  goodMorningFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: goodMorning.run
+      Runtime: nodejs16.x
+      FunctionName: goodMorningFunction
+      Environment:
+        Variables:
+          SLACK_AUTH_TOKEN: "{{resolve:secretsmanager:good-morning:SecretString:SLACK_AUTH_TOKEN}}"
+          SLACK_CHANNEL: "{{resolve:secretsmanager:good-morning:SecretString:SLACK_CHANNEL}}"
+          SECRETS_LAST_UPDATED: !Ref SecretsLastUpdated
+
+  goodMorningEvent:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Description: Good morning event
+      ScheduleExpression: "cron(0 13 ? * MON-FRI *)"
+      Name: goodMorningEvent
+      State: ENABLED
+      Targets:
+       -
+         Arn:
+           Fn::GetAtt:
+             - "goodMorningFunction"
+             - "Arn"
+         Id: "idgoodMorningEvent"
+
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: "goodMorningFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn:
+        Fn::GetAtt:
+          - "goodMorningEvent"
+          - "Arn"
