@@ -25,7 +25,7 @@ exports.run = async (event) => {
       case 1:
         giphyQuery = 'happy+monday%21'
         break;
-      case 6:
+      case 5:
         giphyQuery = 'happy+friday%21'
         break;
       default:
