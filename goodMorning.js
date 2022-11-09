@@ -4,6 +4,7 @@ const slackApiBaseUrl = 'https://slack.com/api';
 const slackUserName = 'Good Morning Stogie!';
 const slackAuthToken = process.env.SLACK_AUTH_TOKEN;
 const slackChannel = process.env.SLACK_CHANNEL;
+const giphyApiKey = process.env.GIPHY_API_KEY;
 
 
 function formatResponse(statusCode, body) {
@@ -32,7 +33,7 @@ exports.run = async (event) => {
         break;
     }
 
-    const gf = await axios.get(`https://api.giphy.com/v1/gifs/search?api_key=WzQZ0EeIN94ondgvQvWexggBxbKdbyRC&q=${giphyQuery}&limit=25&offset=1&rating=g&lang=en`);
+    const gf = await axios.get(`https://api.giphy.com/v1/gifs/search?api_key=${giphyApiKey}&q=${giphyQuery}&limit=25&offset=1&rating=g&lang=en`);
 
     let max = gf.data.data.length;
     let min = 0;

@@ -22,6 +22,7 @@ Resources:
         Variables:
           SLACK_AUTH_TOKEN: "{{resolve:secretsmanager:good-morning:SecretString:SLACK_AUTH_TOKEN}}"
           SLACK_CHANNEL: "{{resolve:secretsmanager:good-morning:SecretString:SLACK_CHANNEL}}"
+          GIPHY_API_KEY: "{{resolve:secretsmanager:good-morning:SecretString:GIPHY_API_KEY}}"
           SECRETS_LAST_UPDATED: !Ref SecretsLastUpdated
 
   goodMorningEvent:
